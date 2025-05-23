@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
+from app.models.weather import OpenWeatherResponse
 
 
 class TunnelConditionsRequest(BaseModel):
@@ -23,3 +24,4 @@ class TunnelOperationResponse(BaseModel):
     decision: DecisionType
     risk_level: RiskLevel
     details: str
+    weather_information: OpenWeatherResponse

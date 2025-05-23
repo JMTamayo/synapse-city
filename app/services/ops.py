@@ -89,13 +89,12 @@ def run(params: TunnelConditionsRequest) -> TunnelOperationResponse:
         output_json=TunnelOperationResponse,
     )
 
-    weather_information: OpenWeatherResponse | None = None
     try:
-        weather_information = get_weather_information(
+        weather_information: OpenWeatherResponse = get_weather_information(
             location=TunnelLocation(),
         )
-    except Exception:
-        pass
+    except Exception as e:
+        raise e
 
     crew: Crew = Crew(
         agents=[operator],
@@ -111,9 +110,7 @@ def run(params: TunnelConditionsRequest) -> TunnelOperationResponse:
         inputs={
             "CO2_CONCENTRATION": params.co2_concentration,
             "LUMINOSITY": params.luminosity_at_tunnel_exit,
-            "WEATHER_INFORMATION": weather_information.model_dump_json()
-            if weather_information
-            else "No weather information available",
+            "WEATHER_INFORMATION": weather_information.model_dump_json(),
         },
     )
 
