@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from pydantic import SecretStr, field_validator
+from pydantic import SecretStr
 from pathlib import Path
 import tomllib
 
