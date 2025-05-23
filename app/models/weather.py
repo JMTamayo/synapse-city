@@ -30,7 +30,6 @@ class WeatherMainInfo(BaseModel):
 class WeatherWindInfo(BaseModel):
     speed: float
     deg: int
-    gust: float
 
 
 class WeatherCloudsInfo(BaseModel):
