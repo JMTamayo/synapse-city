@@ -172,3 +172,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Environment variables:
+*.env
+
+# Visual Studio Code:
+.vscode
