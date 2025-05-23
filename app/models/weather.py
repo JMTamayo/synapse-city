@@ -37,7 +37,13 @@ class WeatherCloudsInfo(BaseModel):
     all: int
 
 
+class CoordInfo(BaseModel):
+    lon: float
+    lat: float
+
+
 class OpenWeatherResponse(BaseModel):
+    coord: CoordInfo
     weather: list[WeatherStatus]
     main: WeatherMainInfo
     visibility: int
