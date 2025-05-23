@@ -1,0 +1,60 @@
+name: cd
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Build:
+    name: 'Build and Push to ACR'
+    runs-on: ubuntu-24.04
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: "Repository: Fetch"
+        uses: actions/checkout@v4
+
+      - name: "Setup: Docker Login"
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.AZURE_URL }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: "Setup: Create Image Tags"
+        id: vars
+        run: |
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+          echo "IMAGE_TAG_SHA=${{ secrets.AZURE_URL }}/synapse-city:$SHORT_SHA" >> $GITHUB_ENV
+          echo "IMAGE_TAG_LATEST=${{ secrets.AZURE_URL }}/synapse-city:latest" >> $GITHUB_ENV
+
+      - name: "Push: Save Image to ACR"
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_TAG_SHA }}
+            ${{ env.IMAGE_TAG_LATEST }}
+
+#  Deploy:
+#    needs: Build
+#    name: 'Deploy to Azure Container Apps'
+#    runs-on: ubuntu-24.04
+#
+#    steps:
+#      - name: "Setup: Azure Login"
+#        uses: azure/login@v2
+#        with:
+#          creds: ${{ secrets.AZURE_CREDENTIALS }}
+#
+#      - name: "Deploy: Container App"
+#        uses: azure/container-apps-deploy-action@v2
+#        with:
+#          imageToDeploy: ${{ secrets.AZURE_URL }}/synapse-city:latest
+#          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+#          containerAppName: ${{ secrets.AZURE_CONTAINER_APP_NAME_SYNAPSE_CITY }}
