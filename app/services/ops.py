@@ -2,6 +2,8 @@ from crewai import Agent, LLM, Crew, Process, Task
 
 from app.config.conf import CONFIG
 from app.models.ops import TunnelConditionsRequest, TunnelOperationResponse
+from app.models.weather import OpenWeatherResponse, TunnelLocation
+from app.services.weather import get_weather_information
 
 
 def run(params: TunnelConditionsRequest) -> TunnelOperationResponse:
@@ -66,6 +68,12 @@ def run(params: TunnelConditionsRequest) -> TunnelOperationResponse:
         Analyze all the information to take a decision.
 
         At the tunnel, the CO2 concentration is {CO2_CONCENTRATION} ppm, the luminosity is {LUMINOSITY} lux.
+
+        The actual weather conditions, taken from the satellite measurement service, are as follows:
+        ```json
+        {WEATHER_INFORMATION}
+        ```
+
         Compare this information with the weather information retrieved from the weather service, analyze the risks and take a decision. The decision must contain the following information:
         - The decision: The tunnel can continue normally, the tunnel can be partially restricted, or the tunnel must be closed.
         - The risk level: Low, medium, high.
@@ -75,11 +83,19 @@ def run(params: TunnelConditionsRequest) -> TunnelOperationResponse:
         The decision must be a JSON object with the following fields:
         - decision: Can take the following values: "CONTINUE_NORMALY", "PARTIALLY_RESTRICT", "CLOSE".
         - risk_level: Can take the following values: "LOW", "MEDIUM", "HIGH".
-        - details: A description of the decision that has been taken.
+        - details: A description of the decision that has been taken. This description must be include the comparison between the weather information retrieved from the weather service, the weather information retrieved from the web and the risk information retrieved from the web showing the data and the units. Be as detailed as possible.
         """,
         agent=operator,
         output_json=TunnelOperationResponse,
     )
+
+    weather_information: OpenWeatherResponse | None = None
+    try:
+        weather_information = get_weather_information(
+            location=TunnelLocation(),
+        )
+    except Exception:
+        pass
 
     crew: Crew = Crew(
         agents=[operator],
@@ -95,6 +111,9 @@ def run(params: TunnelConditionsRequest) -> TunnelOperationResponse:
         inputs={
             "CO2_CONCENTRATION": params.co2_concentration,
             "LUMINOSITY": params.luminosity_at_tunnel_exit,
+            "WEATHER_INFORMATION": weather_information.model_dump_json()
+            if weather_information
+            else "No weather information available",
         },
     )
 

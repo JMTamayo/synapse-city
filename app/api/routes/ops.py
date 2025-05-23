@@ -38,19 +38,29 @@ def get_tunnel_operation_suggestions(
     response: TunnelOperationResponse = run(request)
 
     if response.decision.name != DecisionType.CONTINUE_NORMALY.name:
-        email_content = f"""Dear Operations Team,
+        email_content = f"""Smart City Operations Alert
 
-The following is the report for the tunnel operation.
+We have received an important update regarding the tunnel operations that requires your attention.
 
-Level of risk: {response.risk_level.value}
-Decision: {response.decision.value}
+OPERATION STATUS:
+----------------
+Risk Level: {response.risk_level.value}
+Recommended Action: {response.decision.value}
 
+DETAILED ANALYSIS:
+-----------------
 {response.details}
 
-Best regards,
-Smart City Operations Team.
+NEXT STEPS:
+-----------
+Please review this information and take appropriate action based on the risk level and recommended decision. If you have any questions or need additional information, please don't hesitate to reach out to the operations team.
 
-This email was sent automatically by the Smart City Operations Team using the Synapse City API.
+Best regards,
+Smart City Operations Team
+
+---
+This is an automated message from the Smart City Operations System.
+For immediate assistance, please contact the operations team.
 """
 
         sendit_handler = SendItHandler()
