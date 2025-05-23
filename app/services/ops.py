@@ -98,4 +98,4 @@ def run(params: TunnelConditionsRequest) -> TunnelOperationResponse:
         },
     )
 
-    return output.json_dict
+    return TunnelOperationResponse.model_validate(output.json_dict)

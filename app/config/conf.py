@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pathlib import Path
 import tomllib
 
@@ -27,6 +27,13 @@ class Config(BaseSettings):
 
     TUNNEL_LATITUDE: float
     TUNNEL_LONGITUDE: float
+
+    SENDIT_HOST: str
+    SENDIT_PATH_BASE: str
+    SENDIT_RECIPIENTS_STR: str
+
+    def get_sendit_recipients(self) -> list[str]:
+        return [email.strip() for email in self.SENDIT_RECIPIENTS_STR.split(";")]
 
 
 CONFIG: Config = Config()
