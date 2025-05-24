@@ -37,7 +37,7 @@ def get_tunnel_operation_suggestions(
 ) -> TunnelOperationResponse:
     response: TunnelOperationResponse = run(request)
 
-    if response.decision.name == DecisionType.CLOSE.name:
+    if response.decision.name != DecisionType.CONTINUE_NORMALY.name:
         email_content = f"""Smart City Operations Alert
 
 We have received an important update regarding the tunnel operations that requires your attention.
